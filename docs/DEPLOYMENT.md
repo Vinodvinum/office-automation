@@ -149,6 +149,103 @@ API_INTERNAL_TOKEN = your-secure-token
 NEXT_PUBLIC_API_KEY = your-secure-token
 ```
 
+## Step 4.5: Backend Hosting Options (choose one)
+
+Depending on your preference you can host the backend API (Prisma + Next.js API routes or a lightweight Node server) on Render, Railway, or use Supabase Edge Functions. Below are concise, tested recipes for each option.
+
+### Option A — Render (Web Service)
+
+- Create a new **Web Service** on Render and connect your GitHub repo.
+- Set the Build Command to:
+
+```bash
+npm ci && npx prisma generate && npm run build
+```
+
+- Set the Start Command to:
+
+```bash
+npm run start
+```
+
+- Environment variables (add in Render _Environment_ section):
+
+```
+DATABASE_URL=postgresql://...    # production DB (Supabase/RDS)
+DIRECT_URL=postgresql://...      # optional, if using Prisma Data Proxy or Direct URL
+API_INTERNAL_TOKEN=your-secure-token
+NEXT_PUBLIC_API_INTERNAL_TOKEN=your-public-demo-token
+NEXT_PUBLIC_N8N_URL=https://your-n8n-instance.com
+```
+
+- Render will build and start your Next app as a Node server. Ensure you have `start` script in `package.json` (this repo has `next start`).
+
+### Option B — Railway
+
+- Create a new project on Railway and link your GitHub repo (Deploy from GitHub).
+- Railway build command (project settings):
+
+```bash
+npm ci && npx prisma generate && npm run build
+```
+
+- Railway start command:
+
+```bash
+npm run start
+```
+
+- Add environment variables in Railway's dashboard (same list as Render).
+- Railway provides managed Postgres — you can either provision a Railway Postgres DB and set `DATABASE_URL`, or use Supabase and paste its URL.
+
+### Option C — Supabase (DB + Edge Functions)
+
+Use Supabase for the database and optionally deploy serverless Edge Functions for lightweight API endpoints. This is best if you want a serverless, regional API close to the DB.
+
+- Provision a Supabase project and copy the `DATABASE_URL` as shown earlier.
+- Deploy Edge Functions (JavaScript/TypeScript) to handle small webhook endpoints or offload expensive work to background jobs.
+
+Example Edge Function flow:
+
+1. Move lightweight endpoints to `supabase/functions/` as single-purpose handlers (e.g., webhook receivers).
+2. Use `supabase` CLI to deploy:
+
+```bash
+npm i -g supabase
+supabase login
+supabase functions deploy task-created --project-ref your-ref
+```
+
+3. For Prisma-backed APIs keep them on Render/Railway (Prisma and migrations expect a Node environment).
+
+### Prisma & Migrations (production)
+
+- For any production host running Prisma, run migrations (or `db push`) during build or as a release step:
+
+```bash
+# Generate client
+npx prisma generate
+
+# Apply migrations (if you use migrations)
+npx prisma migrate deploy
+
+# Or push schema without migrations (idempotent)
+npx prisma db push
+```
+
+- If you prefer zero-downtime deployment, run `prisma migrate deploy` as a one-time release job rather than during build.
+
+### Notes on Secrets & Environment
+
+- Keep `DATABASE_URL` and any tokens out of the frontend public envs. Only prefix values intended for client-side use with `NEXT_PUBLIC_`.
+- `API_INTERNAL_TOKEN` should remain secret and be set in the host's private env values. The frontend can use `NEXT_PUBLIC_API_INTERNAL_TOKEN` only for demo flows.
+
+### Health-check & readiness
+
+- Add a lightweight health-check route (e.g., `/api/health`) that returns 200 and runs a cheap DB ping. Configure your host to use it for readiness checks.
+
+## Step 5: Configure Custom Domain (Optional)
+
 ## Step 5: Configure Custom Domain (Optional)
 
 1. Vercel Dashboard → Settings → Domains
