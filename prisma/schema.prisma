@@ -1,0 +1,117 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  role      Role     @default(AGENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tasks      Task[]
+  taskEvents TaskEvent[]
+
+  @@map("users")
+}
+
+model Client {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tasks Task[]
+
+  @@map("clients")
+}
+
+model Task {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  type        TaskType
+  status      TaskStatus @default(OPEN)
+  priority    Priority   @default(MEDIUM)
+  dueDate     DateTime
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  clientId   String
+  client     Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  assignedToId String?
+  assignedTo   User?   @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
+
+  taskEvents TaskEvent[]
+
+  @@index([clientId])
+  @@index([assignedToId])
+  @@index([status])
+  @@index([dueDate])
+  @@map("tasks")
+}
+
+model TaskEvent {
+  id        String   @id @default(cuid())
+  eventType EventType
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  taskId String
+  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("task_events")
+}
+
+enum Role {
+  AGENT
+  MANAGER
+  ADMIN
+}
+
+enum TaskType {
+  MAINTENANCE
+  RENT
+  FOLLOWUP
+  OTHER
+}
+
+enum TaskStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum EventType {
+  CREATED
+  STATUS_CHANGED
+  ASSIGNED
+  REMINDER_SENT
+  REMINDER_SCHEDULED
+  COMPLETED
+}
