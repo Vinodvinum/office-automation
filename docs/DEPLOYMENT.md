@@ -146,8 +146,10 @@ DATABASE_URL = postgresql://...
 NEXT_PUBLIC_N8N_URL = https://your-n8n-instance.com
 N8N_API_KEY = your-api-key
 API_INTERNAL_TOKEN = your-secure-token
-NEXT_PUBLIC_API_KEY = your-secure-token
+NEXT_PUBLIC_API_INTERNAL_TOKEN = your-secure-token
 ```
+
+If you still see `localhost:5678` in your deployment, replace it with the public n8n URL above. The frontend uses `NEXT_PUBLIC_N8N_URL` at runtime.
 
 ## Step 4.5: Backend Hosting Options (choose one)
 

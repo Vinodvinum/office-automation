@@ -106,7 +106,9 @@ npm i -g vercel
 vercel
 
 # Add environment variables when prompted:
-# DATABASE_URL, NEXT_PUBLIC_N8N_URL, API_INTERNAL_TOKEN, etc.
+# DATABASE_URL, NEXT_PUBLIC_N8N_URL, API_INTERNAL_TOKEN, NEXT_PUBLIC_API_INTERNAL_TOKEN, etc.
+
+# After n8n is deployed, update NEXT_PUBLIC_N8N_URL from localhost:5678 to the live n8n URL
 
 # Redeploy with production config
 vercel --prod
