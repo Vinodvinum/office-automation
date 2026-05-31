@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { format, isAfter, startOfDay } from "date-fns"
 import { AlertCircle, CheckCircle, Clock, Plus } from "lucide-react"
 
@@ -23,7 +22,6 @@ interface Client {
 }
 
 export default function TasksPage() {
-  const router = useRouter()
   const [tasks, setTasks] = useState<Task[]>([])
   const [clients, setClients] = useState<Client[]>([])
   const [loading, setLoading] = useState(true)
