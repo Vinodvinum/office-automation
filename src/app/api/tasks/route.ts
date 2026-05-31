@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { sendWebhookEvent } from "@/lib/n8n"
 import { validateApiKey, formatTaskPayload } from "@/lib/helpers"
-import type { CreateTaskRequest, TaskResponse } from "@/types/api"
+import type { CreateTaskRequest } from "@/types/api"
 
 export async function GET(request: NextRequest) {
   try {

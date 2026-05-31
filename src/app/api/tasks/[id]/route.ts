@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
+import { Prisma } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
 import { sendWebhookEvent } from "@/lib/n8n"
-import { validateApiKey, formatTaskPayload } from "@/lib/helpers"
+import { validateApiKey } from "@/lib/helpers"
 import type { UpdateTaskRequest } from "@/types/api"
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -112,7 +113,7 @@ export async function PATCH(
         metadata: {
           previousStatus,
           newStatus: body.status,
-          changes: body,
+          changes: JSON.parse(JSON.stringify(body)) as Prisma.InputJsonValue,
         },
       },
     })

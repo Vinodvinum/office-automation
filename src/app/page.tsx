@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { format, isAfter, startOfDay } from "date-fns"
+import { format } from "date-fns"
 import { AlertCircle, CheckCircle, TrendingUp } from "lucide-react"
 
 interface KPIData {
